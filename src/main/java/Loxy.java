@@ -13,11 +13,13 @@ public class Loxy {
             if ("bye".equalsIgnoreCase(userInput)) {
                 break;
             }
+            echoUserInput(userInput);
         }
 
         printGoodbyeMessage();
         scanner.close();
     }
+
     private static void printWelcomeLogo() {
         String logo =
                 " | |     / __ \\\\ \\\\  // \\\\  //\n"
@@ -27,11 +29,16 @@ public class Loxy {
         System.out.println("Hello from\n" + logo);
     }
 
-
     private static void printWelcomeMessage() {
         System.out.println(SEPARATOR);
         System.out.println(" Hello! I'm Loxy");
         System.out.println(" What can I do for you?");
+        System.out.println(SEPARATOR);
+    }
+
+    private static void echoUserInput(String userInput) {
+        System.out.println(SEPARATOR);
+        System.out.println(" " + userInput);
         System.out.println(SEPARATOR);
     }
 
