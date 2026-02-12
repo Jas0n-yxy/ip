@@ -1,7 +1,9 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Loxy {
     private static final String SEPARATOR = "____________________________________________________________";
+    private static ArrayList<String> taskList = new ArrayList<>();
 
     public static void main(String[] args) {
         printWelcomeLogo();
@@ -13,7 +15,12 @@ public class Loxy {
             if ("bye".equalsIgnoreCase(userInput)) {
                 break;
             }
-            echoUserInput(userInput);
+            else if ("list".equalsIgnoreCase(userInput)) {
+                printTaskList();
+            }
+            else {
+                addTask(userInput);
+            }
         }
 
         printGoodbyeMessage();
@@ -36,9 +43,24 @@ public class Loxy {
         System.out.println(SEPARATOR);
     }
 
-    private static void echoUserInput(String userInput) {
+    private static void addTask(String task) {
+        if (!task.isEmpty()) {
+            taskList.add(task);
+            System.out.println(SEPARATOR);
+            System.out.println(" added: " + task);
+            System.out.println(SEPARATOR);
+        }
+    }
+
+    private static void printTaskList() {
         System.out.println(SEPARATOR);
-        System.out.println(" " + userInput);
+        if (taskList.isEmpty()) {
+            System.out.println(" No tasks added yet!");
+        } else {
+            for (int i = 0; i < taskList.size(); i++) {
+                System.out.println(" " + (i + 1) + ". " + taskList.get(i));
+            }
+        }
         System.out.println(SEPARATOR);
     }
 
