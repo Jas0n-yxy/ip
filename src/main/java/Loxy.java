@@ -34,6 +34,9 @@ public class Loxy {
             else if (userInput.startsWith("event ")) {
                 addEventTask(userInput);
             }
+            else if (!userInput.isEmpty()) {
+                printErrorMessage("OOPS!!! I'm sorry, but I don't know what that means :-(");
+            }
         }
 
         printGoodbyeMessage();
