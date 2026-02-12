@@ -1,5 +1,11 @@
 import java.util.Scanner;
 
+class LoxyException extends Exception {
+    public LoxyException(String message) {
+        super(message);
+    }
+}
+
 public class Loxy {
     private static final String SEPARATOR = "____________________________________________________________";
     private static final Task[] tasks = new Task[100];
@@ -26,7 +32,11 @@ public class Loxy {
                 handleMarkTask(userInput, false);
             }
             else if (userInput.startsWith("todo ")) {
-                addTodoTask(userInput);
+                try {
+                    addTodoTask(userInput);
+                } catch (LoxyException e) {
+                    printErrorMessage(e.getMessage());
+                }
             }
             else if (userInput.startsWith("deadline ")) {
                 addDeadlineTask(userInput);
@@ -35,10 +45,18 @@ public class Loxy {
                 addEventTask(userInput);
             }
             else if (!userInput.isEmpty()) {
-                printErrorMessage("OOPS!!! I'm sorry, but I don't know what that means :-(");
+                try {
+                    throw new LoxyException("OOPS!!! I'm sorry, but I don't know what that means :-(");
+                } catch (LoxyException e) {
+                    printErrorMessage(e.getMessage());
+                }
             }
             else {
-                printErrorMessage("OOPS!!! Please enter a valid command.");
+                try {
+                    throw new LoxyException("OOPS!!! Please enter a valid command.");
+                } catch (LoxyException e) {
+                    printErrorMessage(e.getMessage());
+                }
             }
         }
 
@@ -62,12 +80,11 @@ public class Loxy {
         System.out.println(SEPARATOR);
     }
 
-    private static void addTodoTask(String userInput) {
+    private static void addTodoTask(String userInput) throws LoxyException {
         try {
             String taskContent = userInput.substring(5).trim();
             if (taskContent.isEmpty()) {
-                printErrorMessage("Oops! The description of a todo cannot be empty.");
-                return;
+                throw new LoxyException("Oops! The description of a todo cannot be empty.");
             }
 
             tasks[taskCount] = new Todo(taskContent);
@@ -79,7 +96,7 @@ public class Loxy {
             System.out.println(" Now you have " + taskCount + " tasks in the list.");
             System.out.println(SEPARATOR);
         } catch (StringIndexOutOfBoundsException e) {
-            printErrorMessage("Oops! Please specify a description for the todo task.");
+            throw new LoxyException("Oops! Please specify a description for the todo task.");
         }
     }
 
