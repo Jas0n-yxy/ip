@@ -1,3 +1,5 @@
+package xuan;
+
 import java.util.Scanner;
 
 public class Loxy {
