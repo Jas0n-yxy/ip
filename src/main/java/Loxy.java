@@ -37,6 +37,9 @@ public class Loxy {
             else if (!userInput.isEmpty()) {
                 printErrorMessage("OOPS!!! I'm sorry, but I don't know what that means :-(");
             }
+            else {
+                printErrorMessage("OOPS!!! Please enter a valid command.");
+            }
         }
 
         printGoodbyeMessage();
