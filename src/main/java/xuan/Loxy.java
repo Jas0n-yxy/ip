@@ -1,5 +1,7 @@
 package xuan;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 class LoxyException extends Exception {
@@ -10,12 +12,15 @@ class LoxyException extends Exception {
 
 public class Loxy {
     private static final String SEPARATOR = "____________________________________________________________";
-    private static final Task[] tasks = new Task[100];
-    private static int taskCount = 0;
+    private static final ArrayList<Task> tasks = new ArrayList<>();
+    private static final String DATA_FOLDER = "./data";
+    private static final String DATA_FILE = "./data/loxy.txt";
 
     public static void main(String[] args) {
         printWelcomeLogo();
         printWelcomeMessage();
+
+        loadTasks();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -23,37 +28,41 @@ public class Loxy {
 
             if ("bye".equalsIgnoreCase(userInput)) {
                 break;
-            }
-            else if ("list".equalsIgnoreCase(userInput)) {
+            } else if ("list".equalsIgnoreCase(userInput)) {
                 printTaskList();
-            }
-            else if (userInput.startsWith("mark ")) {
+            } else if (userInput.startsWith("mark ")) {
                 handleMarkTask(userInput, true);
-            }
-            else if (userInput.startsWith("unmark ")) {
+                saveTasks();
+            } else if (userInput.startsWith("unmark ")) {
                 handleMarkTask(userInput, false);
-            }
-            else if (userInput.startsWith("todo ")) {
+                saveTasks();
+            } else if (userInput.startsWith("todo ")) {
                 try {
                     addTodoTask(userInput);
+                    saveTasks();
                 } catch (LoxyException e) {
                     printErrorMessage(e.getMessage());
                 }
-            }
-            else if (userInput.startsWith("deadline ")) {
+            } else if (userInput.startsWith("deadline ")) {
                 addDeadlineTask(userInput);
-            }
-            else if (userInput.startsWith("event ")) {
+                saveTasks();
+            } else if (userInput.startsWith("event ")) {
                 addEventTask(userInput);
-            }
-            else if (!userInput.isEmpty()) {
+                saveTasks();
+            } else if (userInput.startsWith("delete ")) {
+                try {
+                    deleteTask(userInput);
+                    saveTasks();
+                } catch (LoxyException e) {
+                    printErrorMessage(e.getMessage());
+                }
+            } else if (!userInput.isEmpty()) {
                 try {
                     throw new LoxyException("OOPS!!! I'm sorry, but I don't know what that means :-(");
                 } catch (LoxyException e) {
                     printErrorMessage(e.getMessage());
                 }
-            }
-            else {
+            } else {
                 try {
                     throw new LoxyException("OOPS!!! Please enter a valid command.");
                 } catch (LoxyException e) {
@@ -64,6 +73,99 @@ public class Loxy {
 
         printGoodbyeMessage();
         scanner.close();
+    }
+
+    private static void loadTasks() {
+        try {
+            File folder = new File(DATA_FOLDER);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            File file = new File(DATA_FILE);
+            if (!file.exists()) {
+                file.createNewFile();
+                return;
+            }
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                String[] parts = line.split(" \\| ");
+                if (parts.length < 3) {
+                    System.out.println("警告：跳过损坏的任务行：" + line);
+                    continue;
+                }
+
+                String type = parts[0];
+                boolean isDone = parts[1].equals("1");
+                String description = parts[2];
+
+                switch (type) {
+                    case "T":
+                        Todo todo = new Todo(description);
+                        if (isDone) todo.markAsDone();
+                        tasks.add(todo);
+                        break;
+                    case "D":
+                        if (parts.length < 4) break;
+                        String by = parts[3];
+                        Deadline deadline = new Deadline(description, by);
+                        if (isDone) deadline.markAsDone();
+                        tasks.add(deadline);
+                        break;
+                    case "E":
+                        if (parts.length < 5) break;
+                        String from = parts[3];
+                        String to = parts[4];
+                        Event event = new Event(description, from, to);
+                        if (isDone) event.markAsDone();
+                        tasks.add(event);
+                        break;
+                    default:
+                        System.out.println("警告：未知任务类型：" + type);
+                }
+            }
+            br.close();
+            System.out.println(SEPARATOR);
+            System.out.println(" 成功加载 " + tasks.size() + " 个任务！");
+            System.out.println(SEPARATOR);
+
+        } catch (IOException e) {
+            printErrorMessage("加载任务失败：" + e.getMessage());
+        }
+    }
+
+    private static void saveTasks() {
+        try {
+            File folder = new File(DATA_FOLDER);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(DATA_FILE));
+            for (Task task : tasks) {
+                String line = "";
+                if (task instanceof Todo) {
+                    line = String.format("T | %d | %s", task.isDone ? 1 : 0, task.description);
+                } else if (task instanceof Deadline) {
+                    Deadline d = (Deadline) task;
+                    line = String.format("D | %d | %s | %s", d.isDone ? 1 : 0, d.description, d.by);
+                } else if (task instanceof Event) {
+                    Event e = (Event) task;
+                    line = String.format("E | %d | %s | %s | %s", e.isDone ? 1 : 0, e.description, e.from, e.to);
+                }
+                bw.write(line);
+                bw.newLine();
+            }
+            bw.close();
+
+        } catch (IOException e) {
+            printErrorMessage("保存任务失败：" + e.getMessage());
+        }
     }
 
     private static void printWelcomeLogo() {
@@ -88,14 +190,12 @@ public class Loxy {
             if (taskContent.isEmpty()) {
                 throw new LoxyException("Oops! The description of a todo cannot be empty.");
             }
-
-            tasks[taskCount] = new Todo(taskContent);
-            taskCount++;
+            tasks.add(new Todo(taskContent));
 
             System.out.println(SEPARATOR);
             System.out.println(" Got it. I've added this task:");
-            System.out.println("   " + tasks[taskCount - 1]);
-            System.out.println(" Now you have " + taskCount + " tasks in the list.");
+            System.out.println("   " + tasks.get(tasks.size() - 1));
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
             System.out.println(SEPARATOR);
         } catch (StringIndexOutOfBoundsException e) {
             throw new LoxyException("Oops! Please specify a description for the todo task.");
@@ -112,14 +212,12 @@ public class Loxy {
 
             String description = parts[0].trim();
             String byTime = parts[1].trim();
-
-            tasks[taskCount] = new Deadline(description, byTime);
-            taskCount++;
+            tasks.add(new Deadline(description, byTime));
 
             System.out.println(SEPARATOR);
             System.out.println(" Got it. I've added this task:");
-            System.out.println("   " + tasks[taskCount - 1]);
-            System.out.println(" Now you have " + taskCount + " tasks in the list.");
+            System.out.println("   " + tasks.get(tasks.size() - 1));
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
             System.out.println(SEPARATOR);
         } catch (StringIndexOutOfBoundsException e) {
             printErrorMessage("Oops! Please specify a description and deadline time.");
@@ -143,14 +241,12 @@ public class Loxy {
 
             String fromTime = timeParts[0].trim();
             String toTime = timeParts[1].trim();
-
-            tasks[taskCount] = new Event(description, fromTime, toTime);
-            taskCount++;
+            tasks.add(new Event(description, fromTime, toTime));
 
             System.out.println(SEPARATOR);
             System.out.println(" Got it. I've added this task:");
-            System.out.println("   " + tasks[taskCount - 1]);
-            System.out.println(" Now you have " + taskCount + " tasks in the list.");
+            System.out.println("   " + tasks.get(tasks.size() - 1));
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
             System.out.println(SEPARATOR);
         } catch (StringIndexOutOfBoundsException e) {
             printErrorMessage("Oops! Please specify a description and time for the event.");
@@ -159,12 +255,12 @@ public class Loxy {
 
     private static void printTaskList() {
         System.out.println(SEPARATOR);
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             System.out.println(" No tasks added yet!");
         } else {
             System.out.println(" Here are the tasks in your list:");
-            for (int i = 0; i < taskCount; i++) {
-                System.out.println(" " + (i + 1) + "." + tasks[i]);
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println(" " + (i + 1) + "." + tasks.get(i));
             }
         }
         System.out.println(SEPARATOR);
@@ -177,8 +273,8 @@ public class Loxy {
             int taskNumber = Integer.parseInt(numberPart);
             int taskIndex = taskNumber - 1;
 
-            if (taskIndex >= 0 && taskIndex < taskCount) {
-                Task targetTask = tasks[taskIndex];
+            if (taskIndex >= 0 && taskIndex < tasks.size()) {
+                Task targetTask = tasks.get(taskIndex);
                 if (isMarkDone) {
                     targetTask.markAsDone();
                     System.out.println(SEPARATOR);
@@ -197,6 +293,30 @@ public class Loxy {
             printErrorMessage("Oops! Please specify a task number after 'mark'/'unmark'.");
         } catch (NumberFormatException e) {
             printErrorMessage("Oops! Please enter a valid number after 'mark'/'unmark'.");
+        }
+    }
+
+    private static void deleteTask(String userInput) throws LoxyException {
+        try {
+            String numberPart = userInput.substring(7).trim();
+            int taskNumber = Integer.parseInt(numberPart);
+            int taskIndex = taskNumber - 1;
+
+            if (taskIndex < 0 || taskIndex >= tasks.size()) {
+                throw new LoxyException("Oops! This task number does not exist.");
+            }
+
+            Task deletedTask = tasks.remove(taskIndex);
+            System.out.println(SEPARATOR);
+            System.out.println(" Noted. I've removed this task:");
+            System.out.println("   " + deletedTask);
+            System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+            System.out.println(SEPARATOR);
+
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new LoxyException("Oops! Please specify a task number after 'delete'.");
+        } catch (NumberFormatException e) {
+            throw new LoxyException("Oops! Please enter a valid number after 'delete'.");
         }
     }
 
