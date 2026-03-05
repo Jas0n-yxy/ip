@@ -3,12 +3,18 @@ package xuan;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
+/**
+ * Event task with start/end date
+ */
 public class Event extends Task {
     protected LocalDate fromDate;
     protected LocalDate toDate;
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter
+            .ofPattern("MMM dd yyyy")
+            .withLocale(Locale.ENGLISH);
 
     public Event(String description, String from, String to) throws LoxyException {
         super(description);
@@ -16,7 +22,7 @@ public class Event extends Task {
             this.fromDate = LocalDate.parse(from.trim(), INPUT_FORMAT);
             this.toDate = LocalDate.parse(to.trim(), INPUT_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new LoxyException("Invalid date format! Please use yyyy-MM-dd (e.g., 2019-12-02)");
+            throw new LoxyException("Invalid date format! Use yyyy-MM-dd");
         }
     }
 

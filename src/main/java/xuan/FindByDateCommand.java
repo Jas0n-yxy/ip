@@ -14,9 +14,9 @@ public class FindByDateCommand extends Command {
         List<Task> foundTasks = tasks.findTasksByDate(dateStr);
         ui.showLine();
         if (foundTasks.isEmpty()) {
-            System.out.println(" No tasks found on " + dateStr + "!");
+            System.out.println(" No tasks on " + dateStr);
         } else {
-            System.out.println(" Here are the tasks on " + dateStr + ":");
+            System.out.println(" Tasks on " + dateStr + ":");
             for (int i = 0; i < foundTasks.size(); i++) {
                 System.out.println(" " + (i + 1) + "." + foundTasks.get(i));
             }

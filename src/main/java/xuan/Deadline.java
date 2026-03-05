@@ -3,18 +3,24 @@ package xuan;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
+/**
+ * Deadline task with due date
+ */
 public class Deadline extends Task {
     protected LocalDate byDate;
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private static final DateTimeFormatter OUTPUT_FORMAT = DateTimeFormatter
+            .ofPattern("MMM dd yyyy")
+            .withLocale(Locale.ENGLISH);
 
     public Deadline(String description, String by) throws LoxyException {
         super(description);
         try {
             this.byDate = LocalDate.parse(by.trim(), INPUT_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new LoxyException("Invalid date format! Please use yyyy-MM-dd (e.g., 2019-12-02)");
+            throw new LoxyException("Invalid date format! Use yyyy-MM-dd");
         }
     }
 

@@ -1,5 +1,8 @@
 package xuan;
 
+/**
+ * A task without any date/time attached.
+ */
 public class Todo extends Task {
     public Todo(String description) {
         super(description);

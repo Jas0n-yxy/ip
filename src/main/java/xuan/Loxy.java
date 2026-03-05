@@ -1,40 +1,37 @@
 package xuan;
 
+/**
+ * Main entry point of the application.
+ */
 public class Loxy {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
 
-    public Loxy(String filePath) {
+    public Loxy(String path) {
         ui = new Ui();
-        storage = new Storage(filePath);
-        TaskList tempTasks;
+        storage = new Storage(path);
+        TaskList temp;
         try {
-            tempTasks = new TaskList(storage.load());
-            ui.showLine();
-            System.out.println(" Successfully loaded " + tempTasks.size() + " tasks!");
-            ui.showLine();
+            temp = new TaskList(storage.load());
         } catch (LoxyException e) {
             ui.showLoadingError();
-            tempTasks = new TaskList();
+            temp = new TaskList();
         }
-        tasks = tempTasks;
+        tasks = temp;
     }
 
     public void run() {
         ui.showWelcome();
-        boolean isExit = false;
-        while (!isExit) {
+        boolean exit = false;
+        while (!exit) {
             try {
-                String fullCommand = ui.readCommand();
-                ui.showLine();
-                Command command = Parser.parse(fullCommand);
-                command.execute(tasks, ui, storage);
-                isExit = command.isExit();
+                String c = ui.readCommand();
+                Command cmd = Parser.parse(c);
+                cmd.execute(tasks, ui, storage);
+                exit = cmd.isExit();
             } catch (LoxyException e) {
                 ui.showError(e.getMessage());
-            } finally {
-                ui.showLine();
             }
         }
     }

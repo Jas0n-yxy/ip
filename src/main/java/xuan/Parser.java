@@ -4,33 +4,36 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Parse user commands
+ */
 public class Parser {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public static Command parse(String command) throws LoxyException {
-        if (command.isEmpty()) {
-            throw new LoxyException("Please enter a valid command.");
+    public static Command parse(String input) throws LoxyException {
+        if (input.isEmpty()) {
+            throw new LoxyException("Please enter a command!");
         }
 
-        String[] parts = command.split(" ", 2);
-        String commandType = parts[0].toLowerCase();
+        String[] parts = input.split(" ", 2);
+        String cmd = parts[0].toLowerCase();
 
-        return switch (commandType) {
+        return switch (cmd) {
             case "bye" -> new ExitCommand();
             case "list" -> new ListCommand();
-            case "mark" -> createMarkCommand(parts, true);
-            case "unmark" -> createMarkCommand(parts, false);
-            case "todo" -> createTodoCommand(parts);
-            case "deadline" -> createDeadlineCommand(parts);
-            case "event" -> createEventCommand(parts);
-            case "delete" -> createDeleteCommand(parts);
+            case "mark" -> handleMarkCommand(parts, true);
+            case "unmark" -> handleMarkCommand(parts, false);
+            case "todo" -> handleTodoCommand(parts);
+            case "deadline" -> handleDeadlineCommand(parts);
+            case "event" -> handleEventCommand(parts);
+            case "delete" -> handleDeleteCommand(parts);
             case "find" -> createFindCommand(parts);
-            default -> throw new LoxyException("I'm sorry, but I don't know what that means :-(");
+            default -> throw new LoxyException("Unknown command!");
         };
     }
 
-    private static MarkCommand createMarkCommand(String[] parts, boolean isDone) throws LoxyException {
-        if (parts.length < 2) {
+    private static Command handleMarkCommand(String[] parts, boolean isDone) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new LoxyException("Please specify a task number after '" + parts[0] + "'.");
         }
         try {
@@ -41,14 +44,14 @@ public class Parser {
         }
     }
 
-    private static AddCommand createTodoCommand(String[] parts) throws LoxyException {
+    private static Command handleTodoCommand(String[] parts) throws LoxyException {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new LoxyException("The description of a todo cannot be empty.");
         }
         return new AddCommand(new Todo(parts[1].trim()));
     }
 
-    private static AddCommand createDeadlineCommand(String[] parts) throws LoxyException {
+    private static Command handleDeadlineCommand(String[] parts) throws LoxyException {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new LoxyException("The description of a deadline cannot be empty.");
         }
@@ -59,7 +62,7 @@ public class Parser {
         return new AddCommand(new Deadline(deadlineParts[0].trim(), deadlineParts[1].trim()));
     }
 
-    private static AddCommand createEventCommand(String[] parts) throws LoxyException {
+    private static Command handleEventCommand(String[] parts) throws LoxyException {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new LoxyException("The description of an event cannot be empty.");
         }
@@ -74,8 +77,8 @@ public class Parser {
         return new AddCommand(new Event(eventParts[0].trim(), timeParts[0].trim(), timeParts[1].trim()));
     }
 
-    private static DeleteCommand createDeleteCommand(String[] parts) throws LoxyException {
-        if (parts.length < 2) {
+    private static Command handleDeleteCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
             throw new LoxyException("Please specify a task number after 'delete'.");
         }
         try {
@@ -91,6 +94,7 @@ public class Parser {
             throw new LoxyException("Please specify a keyword or date (yyyy-MM-dd) after 'find'.");
         }
         String searchInput = parts[1].trim();
+
         try {
             LocalDate.parse(searchInput, DATE_FORMAT);
             return new FindByDateCommand(searchInput);

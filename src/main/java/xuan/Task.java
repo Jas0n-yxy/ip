@@ -1,5 +1,8 @@
 package xuan;
 
+/**
+ * Represents a general task.
+ */
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -10,15 +13,15 @@ public class Task {
     }
 
     public void markAsDone() {
-        this.isDone = true;
+        isDone = true;
     }
 
     public void unmarkAsDone() {
-        this.isDone = false;
+        isDone = false;
     }
 
-    protected String getStatusIcon() {
-        return (isDone ? "X" : " ");
+    public String getStatusIcon() {
+        return isDone ? "X" : " ";
     }
 
     public String getDescription() {
@@ -30,7 +33,7 @@ public class Task {
     }
 
     public String toFileString() {
-        return String.format("%d | %s", isDone ? 1 : 0, description);
+        return (isDone ? "1" : "0") + " | " + description;
     }
 
     @Override

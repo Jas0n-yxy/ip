@@ -39,31 +39,31 @@ public class Ui {
     }
 
     public void showLoadingError() {
-        showError("Error loading tasks from file! Creating empty task list.");
+        showError("Error loading tasks! Creating empty list.");
     }
 
     public void showTaskAdded(Task task, int taskCount) {
         showLine();
-        System.out.println(" Got it. I've added this task:");
+        System.out.println(" Got it. Added this task:");
         System.out.println("   " + task);
-        System.out.println(" Now you have " + taskCount + " tasks in the list.");
+        System.out.println(" Now you have " + taskCount + " tasks.");
         showLine();
     }
 
     public void showTaskDeleted(Task task, int taskCount) {
         showLine();
-        System.out.println(" Noted. I've removed this task:");
+        System.out.println(" Removed this task:");
         System.out.println("   " + task);
-        System.out.println(" Now you have " + taskCount + " tasks in the list.");
+        System.out.println(" Now you have " + taskCount + " tasks.");
         showLine();
     }
 
     public void showTaskMarked(Task task, boolean isDone) {
         showLine();
         if (isDone) {
-            System.out.println(" Nice! I've marked this task as done:");
+            System.out.println(" Marked as done:");
         } else {
-            System.out.println(" OK, I've marked this task as not done yet:");
+            System.out.println(" Marked as not done:");
         }
         System.out.println("   " + task);
         showLine();
@@ -72,9 +72,9 @@ public class Ui {
     public void showTaskList(TaskList tasks) {
         showLine();
         if (tasks.isEmpty()) {
-            System.out.println(" No tasks added yet!");
+            System.out.println(" No tasks yet!");
         } else {
-            System.out.println(" Here are the tasks in your list:");
+            System.out.println(" Your tasks:");
             for (int i = 0; i < tasks.size(); i++) {
                 System.out.println(" " + (i + 1) + "." + tasks.get(i));
             }
@@ -84,7 +84,7 @@ public class Ui {
 
     public void showGoodbye() {
         showLine();
-        System.out.println(" Bye. Hope to see you again soon!");
+        System.out.println(" Bye! See you soon.");
         showLine();
     }
 }

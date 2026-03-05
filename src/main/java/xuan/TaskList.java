@@ -1,5 +1,9 @@
 package xuan;
 
+/**
+ * Contains the task list and operations on it.
+ */
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -24,14 +28,14 @@ public class TaskList {
 
     public Task delete(int index) throws LoxyException {
         if (index < 0 || index >= tasks.size()) {
-            throw new LoxyException("This task number does not exist!");
+            throw new LoxyException("Task number does not exist!");
         }
         return tasks.remove(index);
     }
 
     public void markTask(int index, boolean isDone) throws LoxyException {
         if (index < 0 || index >= tasks.size()) {
-            throw new LoxyException("This task number does not exist!");
+            throw new LoxyException("Task number does not exist!");
         }
         Task task = tasks.get(index);
         if (isDone) {
@@ -63,18 +67,14 @@ public class TaskList {
         try {
             targetDate = LocalDate.parse(dateStr, DATE_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new LoxyException("Invalid date format! Please use yyyy-MM-dd (e.g., 2019-12-02)");
+            throw new LoxyException("Invalid date format! Use yyyy-MM-dd");
         }
 
         for (Task task : tasks) {
-            if (task instanceof Deadline deadline) {
-                if (deadline.getByDate().equals(targetDate)) {
-                    result.add(task);
-                }
-            } else if (task instanceof Event event) {
-                if (!event.getFromDate().isAfter(targetDate) && !event.getToDate().isBefore(targetDate)) {
-                    result.add(task);
-                }
+            if (task instanceof Deadline deadline && deadline.getByDate().equals(targetDate)) {
+                result.add(task);
+            } else if (task instanceof Event event && !event.getFromDate().isAfter(targetDate) && !event.getToDate().isBefore(targetDate)) {
+                result.add(task);
             }
         }
         return result;

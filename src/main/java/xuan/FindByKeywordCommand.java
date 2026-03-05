@@ -14,9 +14,9 @@ public class FindByKeywordCommand extends Command {
         List<Task> foundTasks = tasks.findTasksByKeyword(keyword);
         ui.showLine();
         if (foundTasks.isEmpty()) {
-            System.out.println(" No matching tasks found for keyword: '" + keyword + "'");
+            System.out.println(" No tasks found for: '" + keyword + "'");
         } else {
-            System.out.println(" Here are the matching tasks in your list:");
+            System.out.println(" Matching tasks:");
             for (int i = 0; i < foundTasks.size(); i++) {
                 System.out.println(" " + (i + 1) + "." + foundTasks.get(i));
             }
