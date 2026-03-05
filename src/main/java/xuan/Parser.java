@@ -1,0 +1,82 @@
+package xuan;
+
+public class Parser {
+
+    public static Command parse(String command) throws LoxyException {
+        if (command.isEmpty()) {
+            throw new LoxyException("Please enter a valid command.");
+        }
+
+        String[] parts = command.split(" ", 2);
+        String commandType = parts[0].toLowerCase();
+
+        return switch (commandType) {
+            case "bye" -> new ExitCommand();
+            case "list" -> new ListCommand();
+            case "mark" -> createMarkCommand(parts, true);
+            case "unmark" -> createMarkCommand(parts, false);
+            case "todo" -> createTodoCommand(parts);
+            case "deadline" -> createDeadlineCommand(parts);
+            case "event" -> createEventCommand(parts);
+            case "delete" -> createDeleteCommand(parts);
+            default -> throw new LoxyException("I'm sorry, but I don't know what that means :-(");
+        };
+    }
+
+    private static MarkCommand createMarkCommand(String[] parts, boolean isDone) throws LoxyException {
+        if (parts.length < 2) {
+            throw new LoxyException("Please specify a task number after '" + parts[0] + "'.");
+        }
+        try {
+            int taskNumber = Integer.parseInt(parts[1]);
+            return new MarkCommand(taskNumber - 1, isDone);
+        } catch (NumberFormatException e) {
+            throw new LoxyException("Please enter a valid number after '" + parts[0] + "'.");
+        }
+    }
+
+    private static AddCommand createTodoCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new LoxyException("The description of a todo cannot be empty.");
+        }
+        return new AddCommand(new Todo(parts[1].trim()));
+    }
+
+    private static AddCommand createDeadlineCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new LoxyException("The description of a deadline cannot be empty.");
+        }
+        String[] deadlineParts = parts[1].split(" /by ", 2);
+        if (deadlineParts.length < 2 || deadlineParts[0].trim().isEmpty() || deadlineParts[1].trim().isEmpty()) {
+            throw new LoxyException("Please use format: deadline [content] /by [time]");
+        }
+        return new AddCommand(new Deadline(deadlineParts[0].trim(), deadlineParts[1].trim()));
+    }
+
+    private static AddCommand createEventCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new LoxyException("The description of an event cannot be empty.");
+        }
+        String[] eventParts = parts[1].split(" /from ", 2);
+        if (eventParts.length < 2 || eventParts[0].trim().isEmpty()) {
+            throw new LoxyException("Please use format: event [content] /from [start] /to [end]");
+        }
+        String[] timeParts = eventParts[1].split(" /to ", 2);
+        if (timeParts.length < 2 || timeParts[0].trim().isEmpty() || timeParts[1].trim().isEmpty()) {
+            throw new LoxyException("Please specify both start and end time for event.");
+        }
+        return new AddCommand(new Event(eventParts[0].trim(), timeParts[0].trim(), timeParts[1].trim()));
+    }
+
+    private static DeleteCommand createDeleteCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2) {
+            throw new LoxyException("Please specify a task number after 'delete'.");
+        }
+        try {
+            int taskNumber = Integer.parseInt(parts[1]);
+            return new DeleteCommand(taskNumber - 1);
+        } catch (NumberFormatException e) {
+            throw new LoxyException("Please enter a valid number after 'delete'.");
+        }
+    }
+}
