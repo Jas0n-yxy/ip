@@ -1,12 +1,15 @@
 package xuan;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Storage {
     private final String filePath;
     private final String folderPath;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Storage(String filePath) {
         this.filePath = filePath;
@@ -26,7 +29,9 @@ public class Storage {
 
         if (!file.exists()) {
             try {
-                file.createNewFile();
+                if (!file.createNewFile()) {
+                    throw new LoxyException("Failed to create data file!");
+                }
                 return tasks;
             } catch (IOException e) {
                 throw new LoxyException("Failed to create data file: " + e.getMessage());
@@ -68,35 +73,27 @@ public class Storage {
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
 
-        return switch (type) {
-            case "T" -> createTodoTask(parts, isDone, description);
-            case "D" -> createDeadlineTask(parts, isDone, description);
-            case "E" -> createEventTask(parts, isDone, description);
+        Task task = switch (type) {
+            case "T" -> new Todo(description);
+            case "D" -> {
+                if (parts.length < 4) {
+                    throw new LoxyException("Invalid Deadline format: " + String.join(" | ", parts));
+                }
+                yield new Deadline(description, parts[3]);
+            }
+            case "E" -> {
+                if (parts.length < 5) {
+                    throw new LoxyException("Invalid Event format: " + String.join(" | ", parts));
+                }
+                yield new Event(description, parts[3], parts[4]);
+            }
             default -> throw new LoxyException("Unknown task type: " + type);
         };
-    }
 
-    private Todo createTodoTask(String[] parts, boolean isDone, String description) {
-        Todo todo = new Todo(description);
-        if (isDone) todo.markAsDone();
-        return todo;
-    }
-
-    private Deadline createDeadlineTask(String[] parts, boolean isDone, String description) throws LoxyException {
-        if (parts.length < 4) {
-            throw new LoxyException("Invalid Deadline format: " + String.join(" | ", parts));
+        if (isDone) {
+            task.markAsDone();
         }
-        Deadline deadline = new Deadline(description, parts[3]);
-        if (isDone) deadline.markAsDone();
-        return deadline;
-    }
 
-    private Event createEventTask(String[] parts, boolean isDone, String description) throws LoxyException {
-        if (parts.length < 5) {
-            throw new LoxyException("Invalid Event format: " + String.join(" | ", parts));
-        }
-        Event event = new Event(description, parts[3], parts[4]);
-        if (isDone) event.markAsDone();
-        return event;
+        return task;
     }
 }

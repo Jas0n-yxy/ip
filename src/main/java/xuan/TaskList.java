@@ -1,10 +1,14 @@
 package xuan;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskList {
     private final List<Task> tasks;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public TaskList() {
         this.tasks = new ArrayList<>();
@@ -51,5 +55,28 @@ public class TaskList {
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks);
+    }
+
+    public List<Task> findTasksByDate(String dateStr) throws LoxyException {
+        List<Task> result = new ArrayList<>();
+        LocalDate targetDate;
+        try {
+            targetDate = LocalDate.parse(dateStr, DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new LoxyException("Invalid date format! Please use yyyy-MM-dd (e.g., 2019-12-02)");
+        }
+
+        for (Task task : tasks) {
+            if (task instanceof Deadline deadline) {
+                if (deadline.getByDate().equals(targetDate)) {
+                    result.add(task);
+                }
+            } else if (task instanceof Event event) {
+                if (!event.getFromDate().isAfter(targetDate) && !event.getToDate().isBefore(targetDate)) {
+                    result.add(task);
+                }
+            }
+        }
+        return result;
     }
 }

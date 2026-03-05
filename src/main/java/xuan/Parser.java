@@ -19,6 +19,7 @@ public class Parser {
             case "deadline" -> createDeadlineCommand(parts);
             case "event" -> createEventCommand(parts);
             case "delete" -> createDeleteCommand(parts);
+            case "find" -> createFindCommand(parts);
             default -> throw new LoxyException("I'm sorry, but I don't know what that means :-(");
         };
     }
@@ -48,7 +49,7 @@ public class Parser {
         }
         String[] deadlineParts = parts[1].split(" /by ", 2);
         if (deadlineParts.length < 2 || deadlineParts[0].trim().isEmpty() || deadlineParts[1].trim().isEmpty()) {
-            throw new LoxyException("Please use format: deadline [content] /by [time]");
+            throw new LoxyException("Please use format: deadline [content] /by [yyyy-MM-dd]");
         }
         return new AddCommand(new Deadline(deadlineParts[0].trim(), deadlineParts[1].trim()));
     }
@@ -59,11 +60,11 @@ public class Parser {
         }
         String[] eventParts = parts[1].split(" /from ", 2);
         if (eventParts.length < 2 || eventParts[0].trim().isEmpty()) {
-            throw new LoxyException("Please use format: event [content] /from [start] /to [end]");
+            throw new LoxyException("Please use format: event [content] /from [yyyy-MM-dd] /to [yyyy-MM-dd]");
         }
         String[] timeParts = eventParts[1].split(" /to ", 2);
         if (timeParts.length < 2 || timeParts[0].trim().isEmpty() || timeParts[1].trim().isEmpty()) {
-            throw new LoxyException("Please specify both start and end time for event.");
+            throw new LoxyException("Please specify both start and end date (yyyy-MM-dd) for event.");
         }
         return new AddCommand(new Event(eventParts[0].trim(), timeParts[0].trim(), timeParts[1].trim()));
     }
@@ -78,5 +79,12 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new LoxyException("Please enter a valid number after 'delete'.");
         }
+    }
+
+    private static FindCommand createFindCommand(String[] parts) throws LoxyException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new LoxyException("Please specify a date (yyyy-MM-dd) after 'find'.");
+        }
+        return new FindCommand(parts[1].trim());
     }
 }

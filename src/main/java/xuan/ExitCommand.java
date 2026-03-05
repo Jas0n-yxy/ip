@@ -4,6 +4,10 @@ public class ExitCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         ui.showGoodbye();
-        setExit(true);
+    }
+
+    @Override
+    public boolean isExit() {
+        return true;
     }
 }
