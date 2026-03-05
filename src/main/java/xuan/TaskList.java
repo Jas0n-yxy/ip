@@ -79,4 +79,15 @@ public class TaskList {
         }
         return result;
     }
+
+    public List<Task> findTasksByKeyword(String keyword) {
+        List<Task> result = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
+                result.add(task);
+            }
+        }
+        return result;
+    }
 }

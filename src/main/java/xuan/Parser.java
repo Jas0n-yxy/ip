@@ -1,6 +1,11 @@
 package xuan;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class Parser {
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public static Command parse(String command) throws LoxyException {
         if (command.isEmpty()) {
@@ -81,10 +86,16 @@ public class Parser {
         }
     }
 
-    private static FindCommand createFindCommand(String[] parts) throws LoxyException {
+    private static Command createFindCommand(String[] parts) throws LoxyException {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            throw new LoxyException("Please specify a date (yyyy-MM-dd) after 'find'.");
+            throw new LoxyException("Please specify a keyword or date (yyyy-MM-dd) after 'find'.");
         }
-        return new FindCommand(parts[1].trim());
+        String searchInput = parts[1].trim();
+        try {
+            LocalDate.parse(searchInput, DATE_FORMAT);
+            return new FindByDateCommand(searchInput);
+        } catch (DateTimeParseException e) {
+            return new FindByKeywordCommand(searchInput);
+        }
     }
 }

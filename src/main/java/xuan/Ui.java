@@ -82,19 +82,6 @@ public class Ui {
         showLine();
     }
 
-    public void showFoundTasks(List<Task> tasks, String date) {
-        showLine();
-        if (tasks.isEmpty()) {
-            System.out.println(" No tasks found on " + date + "!");
-        } else {
-            System.out.println(" Here are the tasks on " + date + ":");
-            for (int i = 0; i < tasks.size(); i++) {
-                System.out.println(" " + (i + 1) + "." + tasks.get(i));
-            }
-        }
-        showLine();
-    }
-
     public void showGoodbye() {
         showLine();
         System.out.println(" Bye. Hope to see you again soon!");
