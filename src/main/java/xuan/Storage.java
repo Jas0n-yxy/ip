@@ -65,7 +65,7 @@ public class Storage {
         return tasks;
     }
 
-    // Parse single line to Task object
+    // Parse the single line to Task object
     private Task parse(String line) throws LoxyException {
         String[] parts = line.split(" \\| ");
         if (parts.length < 3) {
