@@ -13,21 +13,21 @@ Loxy is a simple task management chatbot that helps you track todos, deadlines, 
 Create a task without a specific date.
 - **Command**: `todo [description]`
 - **Example**: `todo read book`
-- **Output**: `Got it. Added this task:[T][ ] read bookNow you have 1 tasks.`
+- **Output**: `Got it. Added this task: [T][ ] read book Now you have 1 tasks.`
 ### 2. Add a Deadline Task
 Create a task with a due date (format: yyyy-MM-dd).
 - **Command**: `deadline [description] /by [date]`
 - **Example**: `deadline return book /by 2026-06-06`
-- **Output**: `Got it. Added this task:[D][ ] return book (by: Jun 06 2026)Now you have 2 tasks.`
+- **Output**: `Got it. Added this task:[D][ ]  return book (by: Jun 06 2026) Now you have 2 tasks.`
 ### 3. Add an Event Task
 Create a task with start and end dates (format: yyyy-MM-dd).
 - **Command**: `event [description] /from [start date] /to [end date]`
 - **Example**: `event team meeting /from 2026-03-10 /to 2026-03-10`
-- **Output**: `Got it. Added this task:[E][ ] team meeting (from: Mar 10 2026 to: Mar 10 2026)Now you have 3 tasks.`
+- **Output**: `Got it. Added this task: [E][ ] team meeting (from: Mar 10 2026 to: Mar 10 2026) Now you have 3 tasks.`
 ### 4. List All Tasks
 View all your tasks with their status.
 - **Command**: `list`
-- **Output**: `Your tasks:1.[T][ ] read book2.[D][ ] return book (by: Jun 06 2026)3.[E][ ] team meeting (from: Mar 10 2026 to: Mar 10 2026)`
+- **Output**: `Your tasks:1.[T][ ] read book 2.[D][ ] return book (by: Jun 06 2026) 3.[E][ ] team meeting (from: Mar 10 2026 to: Mar 10 2026)`
 ### 5. Mark a Task as Done
 Mark a task as completed (use task number from `list`).
 - **Command**: `mark [task number]`
@@ -42,7 +42,7 @@ Mark a completed task as not done.
 Remove a task from the list.
 - **Command**: `delete [task number]`
 - **Example**: `delete 2`
-- **Output**: `Removed this task:[D][ ] return book (by: Jun 06 2026)Now you have 2 tasks.`
+- **Output**: `Removed this task:[D][ ] return book (by: Jun 06 2026) Now you have 2 tasks.`
 ### 8. Find Tasks
 Search tasks by keyword or date.
 - **Search by keyword**: `find [keyword]` (e.g., `find book`)
